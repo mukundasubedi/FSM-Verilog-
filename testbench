@@ -1,0 +1,33 @@
+`timescale 1ns / 1ps
+
+module tb();
+reg req_0,req_1,req_2,clk,rst;
+wire gnt_0,gnt_1,gnt_2;
+
+fsm_arbiter uut(.req_0(req_0),.req_1(req_1),.req_2(req_2),
+                .gnt_0(gnt_0),.gnt_1(gnt_1),.gnt_2(gnt_2),
+                .rst(rst),.clk(clk));
+always 
+#2 clk=~clk; 
+initial begin
+    clk=0;
+    rst=0;
+    #2 rst=1;
+    #2 rst=0;
+    #100;
+  end
+always@(posedge clk)
+   if(rst)
+     begin
+     req_0 <= 1'b0;
+     req_1 <= 1'b0;
+     req_2 <= 1'b0;
+end
+else
+   begin
+     req_0 <= 1’b1;
+     req_1 <= 1’b1;
+     req_2 <= 1’b1;
+   end
+   
+endmodule
