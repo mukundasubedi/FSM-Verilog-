@@ -1,0 +1,62 @@
+`timescale 1ns / 1ps
+
+module fsm_arbiter( req_0,req_1,req_2,gnt_0,gnt_1,gnt_2,clk,rst
+);
+input   clk,rst,req_0,req_1,req_2;
+output  gnt_0,gnt_1,gnt_2;
+wire    clk,rst,req_0,req_1,req_2;
+reg     gnt_0,gnt_1,gnt_2;
+
+parameter [2:0]idle  = 3'b000,
+G0 = 3'b001,G1 = 3'b010,G2 = 3'b100;
+
+reg [2:0] state;    
+reg [2:0] next_state;
+
+always @ (posedge clk)
+begin : FSM
+if (rst == 1'b1) begin
+  state <= #1 idle;
+  gnt_0 <= 0;
+  gnt_1 <= 0;
+end else
+ case(state)
+   idle : if (req_0 == 1'b1) begin
+   state <= #1 G0;
+   gnt_0 <= 1;
+   end else if (req_1 == 1'b1) begin
+   gnt_1 <= 1;
+   state <= #1 G1;
+   end else if (req_2 == 1'b1) begin
+   gnt_2 <= 1;
+   state <= #2 G2;
+   end else begin
+   state <= #1 idle;
+ end
+ 
+ G0: if (req_0 == 1'b1) begin
+     state <= #1 G0;
+     end else begin
+     gnt_0 <= 0;
+     state <= #1 idle;
+ end
+ 
+ G1: if (req_1 == 1'b1) begin
+     state <= #1 G1;
+     end else begin
+     gnt_1 <= 0;
+     state <= #1 idle;
+ end
+ 
+ G2: if (req_1 == 1'b1) begin
+     state <= #1 G1;
+     end else begin
+     gnt_2 <= 0;
+     state <= #1 idle;
+ end
+ 
+ default:state <= #1 idle;
+ endcase
+ end
+ 
+endmodule
